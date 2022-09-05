@@ -16,8 +16,13 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
+import java.util.Collections;
 
 @Configuration
 public class ProjectSecurityConfig {
@@ -33,7 +38,10 @@ public class ProjectSecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http
+        http.cors().configurationSource(this::getCorsConfiguration)
+                .and().csrf().ignoringAntMatchers("/contact")
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .and()
                 .authorizeRequests()
                 .antMatchers("/myAccount", "/myBalance", "/myLonas", "/myCards").authenticated()
                 .antMatchers("/notices", "contact").permitAll()
@@ -58,6 +66,16 @@ public class ProjectSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+        var config = new CorsConfiguration();
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        config.setAllowedMethods(Collections.singletonList("*"));
+        config.setAllowCredentials(Boolean.TRUE);
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setMaxAge(3600L);
+        return config;
     }
 
 }
