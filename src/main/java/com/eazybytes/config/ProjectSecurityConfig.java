@@ -1,27 +1,16 @@
 package com.eazybytes.config;
 
-import org.springframework.cglib.proxy.NoOp;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import java.util.Collections;
 
 @Configuration
@@ -42,13 +31,13 @@ public class ProjectSecurityConfig {
                 .and().csrf().ignoringAntMatchers("/contact")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
-                .authorizeRequests()
-                .antMatchers("/myAccount").authenticated()
-                .antMatchers("/myBalance").authenticated()
-                .antMatchers("/myLoans").authenticated()
+                .authorizeRequests(auth -> auth
+                .antMatchers("/myAccount").hasRole("USER")
+                .antMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/myLoans").hasRole("ROOT")
                 .antMatchers("/myCards").authenticated()
                 .antMatchers("/notices").permitAll()
-                .antMatchers("/contact").permitAll().and().httpBasic();
+                .antMatchers("/contact").permitAll()).httpBasic(Customizer.withDefaults());
         return http.build();
     }
 

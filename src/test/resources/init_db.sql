@@ -7,17 +7,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 `enabled` INT NOT NULL,
 PRIMARY KEY (`id`));
 
-CREATE TABLE IF NOT EXISTS `authorities` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(45) NOT NULL,
-  `authority` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`));
-
 DELETE FROM `users`;
-DELETE FROM `authorities`;
-
 INSERT IGNORE INTO `users` VALUES (NULL, 'happy', '12345', '1');
-INSERT IGNORE INTO `authorities` VALUES (NULL, 'happy', 'write');
 
 CREATE TABLE IF NOT EXISTS `customer` (
   `customer_id` int NOT NULL AUTO_INCREMENT,
@@ -33,6 +24,21 @@ CREATE TABLE IF NOT EXISTS `customer` (
 DELETE FROM `customer`;
 INSERT INTO `customer` (`name`,`email`,`mobile_number`, `pwd`, `role`,`create_dt`)
  VALUES ('Happy','happy@example.com','9876548337', '$2y$12$oRRbkNfwuR8ug4MlzH5FOeui.//1mkd.RsOAJMbykTSupVy.x/vb2', 'admin',CURDATE());
+
+CREATE TABLE IF NOT EXISTS `authorities` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`),
+  CONSTRAINT authorities_ibfk_2 FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`));
+
+DELETE FROM `authorities`;
+INSERT IGNORE INTO `authorities` VALUES (NULL, (SELECT customer_id from `customer` where email = 'happy@example.com'), 'READ');
+INSERT IGNORE INTO `authorities` VALUES (NULL, (SELECT customer_id from `customer` where email = 'happy@example.com'), 'WRITE');
+
+UPDATE `authorities` SET name="ROLE_USER" WHERE id=1;
+UPDATE `authorities` SET name="ROLE_ADMIN" WHERE id=2;
 
 CREATE TABLE IF NOT EXISTS `accounts` (
   `customer_id` int NOT NULL,

@@ -1,7 +1,10 @@
 package com.eazybytes.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 public class Customer {
@@ -17,11 +20,16 @@ public class Customer {
     private long mobileNumber;
 
     private String email;
+    @JsonIgnore
     private String pwd;
     private String role;
 
     @Column(name = "create_dt")
     private LocalDate createDt;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
+    private Set<Authority> authorities;
 
     public int getId() {
         return id;
@@ -69,5 +77,9 @@ public class Customer {
 
     public LocalDate getCreateDt() {
         return createDt;
+    }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
     }
 }
