@@ -43,12 +43,12 @@ public class ProjectSecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
-                .antMatchers("/myAccount", "/myBalance", "/myLonas", "/myCards").authenticated()
-                .antMatchers("/notices", "contact").permitAll()
-                .and()
-                .formLogin()
-                .and()
-                .httpBasic(Customizer.withDefaults());
+                .antMatchers("/myAccount").authenticated()
+                .antMatchers("/myBalance").authenticated()
+                .antMatchers("/myLoans").authenticated()
+                .antMatchers("/myCards").authenticated()
+                .antMatchers("/notices").permitAll()
+                .antMatchers("/contact").permitAll().and().httpBasic();
         return http.build();
     }
 
