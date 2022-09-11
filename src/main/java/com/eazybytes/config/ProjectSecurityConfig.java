@@ -4,6 +4,7 @@ import com.eazybytes.filter.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true,securedEnabled = true,  jsr250Enabled = true)
 public class ProjectSecurityConfig {
 
     /**
@@ -41,8 +43,9 @@ public class ProjectSecurityConfig {
                 .authorizeRequests(auth -> auth
                 .antMatchers("/myAccount").hasRole("USER")
                 .antMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
-                .antMatchers("/myLoans").hasRole("ROOT")
-                .antMatchers("/myCards").authenticated()
+                .antMatchers("/myLoans").authenticated()
+                .antMatchers("/myCards").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/user").authenticated()
                 .antMatchers("/notices").permitAll()
                 .antMatchers("/contact").permitAll()).httpBasic(Customizer.withDefaults());
         return http.build();
